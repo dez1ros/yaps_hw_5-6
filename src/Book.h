@@ -12,7 +12,7 @@ private:
     std::string borrowedBy;
 
 public:
-    Book(const std::string& t, const std::string& a, const int y, const std::string& i, const bool available = true, const std::string& borrowed = "");
+    Book(std::string t, std::string a, int y, std::string i, bool available = true, std::string borrowed = "");
 
     std::string getTitle() const;
     std::string getAuthor() const;

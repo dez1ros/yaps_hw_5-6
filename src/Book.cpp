@@ -1,7 +1,7 @@
 #include "Book.h"
 #include <iostream>
 
-Book::Book(const std::string& t, const std::string& a, const int y, const std::string& i, const bool available, const std::string& borrowed)
+Book::Book(std::string t, std::string a, int y, std::string i, bool available, std::string borrowed)
     : title(t), author(a), year(y), isbn(i), isAvailable(available), borrowedBy(borrowed)
 {
     if (y <= 1450 || y >= 2025) {
