@@ -2,7 +2,7 @@
 #include <iostream>
 #include <algorithm>
 
-User::User(const std::string& n, const std::string& id, const std::vector<std::string>& borrowed, int maxBooks)
+User::User(std::string n, std::string id, std::vector<std::string> borrowed, int maxBooks)
     : name(n), userId(id), borrowedBooks(borrowed), maxBooksAllowed(maxBooks) {}
 
 std::string User::getName() const {

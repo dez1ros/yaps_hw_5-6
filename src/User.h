@@ -11,8 +11,7 @@ private:
     int maxBooksAllowed;
 
 public:
-    User(const std::string& n, const std::string& id, const std::vector<std::string>& borrowed = {}, int maxBooks = 3)
-        : name(n), userId(id), borrowedBooks(borrowed), maxBooksAllowed(maxBooks) {}
+    User(std::string n, std::string id, std::vector<std::string> borrowed = {}, int maxBooks = 3);
 
     std::string getName() const;
     std::string getUserId() const;

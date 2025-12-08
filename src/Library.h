@@ -11,9 +11,7 @@ private:
     std::vector<User> users;
     std::string dataFile;
 public:
-    Library(const std::string& filePath) : dataFile(filePath) {
-        loadFromFile();
-    }
+    Library(std::string filePath);
 
     void addBook(const Book& book);
     void addUser(const User& user);

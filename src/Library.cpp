@@ -1,8 +1,8 @@
-#include "Library.h"
 #include <iostream>
 #include <fstream>
+#include "Library.h"
 
-Library::Library(const std::string& filePath) : dataFile(filePath) {
+Library::Library(std::string filePath) : dataFile(filePath) {
     loadFromFile();
 }
 
@@ -81,11 +81,29 @@ void Library::saveToFile() const {
 
 void Library::loadFromFile() {
     std::ifstream inFile(dataFile);
+    std::string line;
     if (!inFile) {
-        std::cout << "Не удалось открыть файл для загрузки данных: " << dataFile << "\n";
+        std::cerr << "Не удалось открыть файл для загрузки данных: " << dataFile << "\n";
         return;
+    }    
+    
+    while (std::getline(inFile, line)) {
+        // if (line.find("Title: ") == 0) {
+        //     std::string title = line.substr(7);
+        // } else if (line.find("Author: ") == 0) {
+        //     std::string author = line.substr(8);
+        // } else if (line.find("Year: ") == 0) {
+        //     int year = std::stoi(line.substr(6));
+        // } else if (line.find("ISBN: ") == 0) {
+        //     std::string isbn = line.substr(6);
+        // } else if (line.find("Available: ") == 0) {
+        //     bool available = (line.substr(11) == "1");
+        // } else if (line.find("BorrowedBy: ") == 0) {
+        //     std::string borrowedBy = line.substr(12);
+        // }
+        std::cout << line << std::endl; // обработка строки
     }
 
-    
-    
+
+    inFile.close();
 }
