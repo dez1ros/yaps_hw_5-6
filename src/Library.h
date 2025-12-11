@@ -22,6 +22,7 @@ public:
     Book* findBookByISBN(const std::string& isbn);
     User* findUserByName(const std::string& name);
 
+    std::vector<User> getAllUsers() const;
     void displayAllBooks() const;
     void displayAllUsers() const;
     void saveToFile() const;

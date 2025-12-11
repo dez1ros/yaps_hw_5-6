@@ -63,6 +63,10 @@ User* Library::findUserByName(const std::string& name) {
     return nullptr;
 }
 
+std::vector<User> Library::getAllUsers() const {
+    return users;
+}
+
 void Library::displayAllBooks() const {
     for (const auto& book : books) {
         book.displayInfo();
