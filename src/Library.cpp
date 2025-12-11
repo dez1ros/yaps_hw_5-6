@@ -1,8 +1,10 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "Library.h"
 
-Library::Library(std::string filePath) : dataFile(filePath) {
+
+Library::Library(std::string filePath) : dataFile("../data/" + filePath) {
     loadFromFile();
 }
 
@@ -81,29 +83,74 @@ void Library::saveToFile() const {
 
 void Library::loadFromFile() {
     std::ifstream inFile(dataFile);
-    std::string line;
+
     if (!inFile) {
-        std::cerr << "Не удалось открыть файл для загрузки данных: " << dataFile << "\n";
-        return;
-    }    
-    
-    while (std::getline(inFile, line)) {
-        // if (line.find("Title: ") == 0) {
-        //     std::string title = line.substr(7);
-        // } else if (line.find("Author: ") == 0) {
-        //     std::string author = line.substr(8);
-        // } else if (line.find("Year: ") == 0) {
-        //     int year = std::stoi(line.substr(6));
-        // } else if (line.find("ISBN: ") == 0) {
-        //     std::string isbn = line.substr(6);
-        // } else if (line.find("Available: ") == 0) {
-        //     bool available = (line.substr(11) == "1");
-        // } else if (line.find("BorrowedBy: ") == 0) {
-        //     std::string borrowedBy = line.substr(12);
-        // }
-        std::cout << line << std::endl; // обработка строки
+        std::ofstream out(dataFile);
+
+        if (!out) {
+            std::cerr << "Ошибка: не удалось создать файл!" << std::endl;
+            return;
+        }
+
+        out.close();
     }
 
+    std::string line;
+
+    std::string title, author, isbn, borrowedBy;
+    std::string name, userId;
+    std::vector<std::string> borrowedBooks;
+    std::string borrowedBooksLine;
+    int year, maxBooks;
+    bool available;
+
+    int count = 0;
+    while (std::getline(inFile, line)) {
+        if (line.find("BOOK") == 0) {
+            std::getline(inFile, line);
+            title = line.substr(7);
+            std::getline(inFile, line);
+            author = line.substr(8);
+            std::getline(inFile, line);
+            year = std::stoi(line.substr(6));
+            std::getline(inFile, line);
+            isbn = line.substr(6);
+            std::getline(inFile, line);
+            available = (line.substr(11) == "yes");
+            std::getline(inFile, line);
+            borrowedBy = line.substr(12);
+
+            Book book(title, author, year, isbn, available, borrowedBy);
+            addBook(book);
+
+        } else if (line.find("USER") == 0) {
+
+            std::getline(inFile, line);
+            name = line.substr(6);
+            std::getline(inFile, line);
+            userId = line.substr(8);
+            std::getline(inFile, line);
+            borrowedBooksLine = line.substr(15);
+            std::istringstream borrowedBooksLineSS(borrowedBooksLine);
+            std::string isbn;
+            borrowedBooks.clear();
+            while (std::getline(borrowedBooksLineSS, isbn, '|')) {
+                borrowedBooks.push_back(isbn);
+            }
+            std::getline(inFile, line);
+            maxBooks = std::stoi(line.substr(9));
+            
+            if (!maxBooks){
+                maxBooks = 3;
+            }
+            if (borrowedBooks.empty()) {
+                borrowedBooks = {};
+            }
+
+            User user(name, userId, borrowedBooks, maxBooks);
+            addUser(user);
+        }
+    }
 
     inFile.close();
 }
