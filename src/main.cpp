@@ -11,6 +11,7 @@ std::string deleteBackSymb(std::string line);
 int main() {
     system("clear");
     Library library;
+
     try {
         library = Library("library_data.txt");
     } catch (const std::invalid_argument& e) {
@@ -26,6 +27,11 @@ int main() {
         mainMenu();
         
         std::cin >> choice;
+        if (std::cin.fail()) {
+            std::cin.clear();
+            choice = -1;
+        }
+        std::cin.ignore(1000, '\n');
         system("clear");
 
         if (choice == 1){
@@ -58,17 +64,19 @@ int main() {
             std::cin >> userName;
             std::cout << "Введите ISBN книги: ";
             std::cin >> isbn;
+            std::cin.ignore(1000, '\n');
             try{
                 library.borrowBook(userName, isbn);    
             } catch (const std::invalid_argument& e) {
                 std::cout << "Ошибка: " << e.what() << "\n";
                 errFlag = 1;
-            }         
+            }
         } 
         else if (choice == 6) {
             std::string isbn;
             std::cout << "Введите ISBN книги для возврата: ";
             std::cin >> isbn;
+            std::cin.ignore(1000, '\n');
             try{
                 library.returnBook(isbn);
             } catch (const std::invalid_argument& e) {
@@ -80,6 +88,7 @@ int main() {
             std::string isbn;
             std::cout << "Введите ISBN книги для поиска: ";
             std::cin >> isbn;
+            std::cin.ignore(1000, '\n');
 
             Book* book;
             try{
@@ -88,13 +97,18 @@ int main() {
                 std::cout << "Ошибка: " << e.what() << "\n";
                 errFlag = 1;
             }
-            book->displayInfo();
-
+            if (!errFlag) {
+                std::cout << "---------------------\n";
+                book->displayInfo();
+                std::cout << "---------------------\n";
+            }
         } 
         else if (choice == 8) {
             std::string userName;
             std::cout << "Введите имя пользователя для просмотра профиля: ";
             std::cin >> userName;
+            std::cin.ignore(1000, '\n');
+
             User* user;
             try {
                 user = library.findUserByName(userName);
@@ -116,6 +130,7 @@ int main() {
         } 
         else {
             std::cout << "Неверный выбор. Пожалуйста, попробуйте снова.\n";
+            errFlag = 1;
         }
 
         if (!errFlag){
@@ -123,7 +138,6 @@ int main() {
         }
 
         std::cout << "\n" << "Нажмите Enter, чтобы продолжить...";
-        std::cin.ignore(1000, '\n');
         std::cin.get();
 
         system("clear");
@@ -153,7 +167,6 @@ Book createBook(std::vector<std::string> existingISBNs) {
     int year;
 
     std::cout << "Введите название книги: ";
-    std::cin.ignore(1000, '\n');
     std::getline(std::cin, title);
 
     std::cout << "Введите автора книги: ";
@@ -164,11 +177,13 @@ Book createBook(std::vector<std::string> existingISBNs) {
 
     if (std::cin.fail()) {
         std::cin.clear();
+        std::cin.ignore(1000, '\n');
         throw std::invalid_argument("Некорректный год издания.");
     }
 
     std::cout << "Введите ISBN книги: ";
     std::cin >> isbn;
+    std::cin.ignore(1000, '\n');
 
     for (auto& existingISBN : existingISBNs) {
         if (isbn == existingISBN) {
@@ -185,9 +200,7 @@ User createUser(std::vector<User> users) {
     int maxID;
 
     std::cout << "Введите имя пользователя: ";
-    std::cin.ignore(1000, '\n');
     std::getline(std::cin, name);
-    std::cin.clear();
 
     if (users.empty()){
         lastUserId = "000";

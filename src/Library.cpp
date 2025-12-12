@@ -102,13 +102,18 @@ void Library::loadFromFile() {
     std::ifstream inFile(dataFile);
 
     if (!inFile) {
+        inFile.close();
         std::ofstream out(dataFile);
 
         if (!out) {
             throw std::invalid_argument("Ошибка: не удалось создать файл!");
         }
 
+        out << "---END---\n";
+
         out.close();
+
+        inFile.open(dataFile);
     }
 
     std::string line;
