@@ -3,8 +3,8 @@ Title: Война и мир
 Author: Лев Толстой
 Year: 1869
 ISBN: 978-5-17-70490-8
-Available: yes
-BorrowedBy: 
+Available: no
+BorrowedBy: Dany
 
 BOOK
 Title: Преступление и наказание
@@ -19,8 +19,32 @@ Title: C++ Primer
 Author: Stanley Lippman
 Year: 2012
 ISBN: 978-0-13-110388-8
+Available: no
+BorrowedBy: Sasha
+
+BOOK
+Title: Sasha pro 228
+Author: Voron
+Year: 2009
+ISBN: 1
 Available: yes
 BorrowedBy: 
+
+BOOK
+Title: Test book
+Author: ivan
+Year: 1999
+ISBN: 1-2
+Available: no
+BorrowedBy: Dany
+
+BOOK
+Title: Main Book
+Author: Author
+Year: 2010
+ISBN: 2
+Available: no
+BorrowedBy: Dany
 
 ---USERS---
 
@@ -35,5 +59,17 @@ Name: Петров
 UserID: USR_002
 BorrowedBooks: 
 MaxBooks: 3
+
+USER
+Name: Sasha
+UserID: USR_003
+BorrowedBooks: 978-0-13-110388-8
+MaxBooks: 3
+
+USER
+Name: Dany
+UserID: USR_004
+BorrowedBooks: 2|978-5-17-70490-8|1-2
+MaxBooks: 5
 
 ---END---

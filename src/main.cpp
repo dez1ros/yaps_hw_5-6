@@ -121,8 +121,12 @@ int main() {
             }
         } 
         else if (choice == 9) {
-            library.saveToFile();
-            std::cout << "Данные сохранены в файл.\n";
+            try{
+                library.saveToFile();
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Ошибка при сохранении данных: " << e.what() << "\n";
+                errFlag = 1;
+            }
         } 
         else if (choice == 10) {
             std::cout << "Выход из программы.\n";
@@ -196,8 +200,8 @@ Book createBook(std::vector<std::string> existingISBNs) {
 }
 
 User createUser(std::vector<User> users) {
-    std::string name, lastUserId, userId;
-    int maxID;
+    std::string name, lastUserId, userId, maxBooksAllowedStr;
+    int maxID, maxBooksAllowed;
 
     std::cout << "Введите имя пользователя: ";
     std::getline(std::cin, name);
@@ -217,7 +221,22 @@ User createUser(std::vector<User> users) {
     }
     userId = std::to_string(std::stoi(lastUserId) + 1);
     int zSize = 3 - userId.length();
-    User newUser(name, "USR_" + std::string(zSize, '0') + userId);
+
+    
+    std::cout << "Введите максимальное количество книг, которые может взять пользователь (3): ";
+    std::getline(std::cin, maxBooksAllowedStr);
+
+    if (maxBooksAllowedStr.empty()){
+        maxBooksAllowed = 3;
+    } else {
+        try {
+            maxBooksAllowed = std::stoi(maxBooksAllowedStr);
+        } catch (const std::invalid_argument& e) {
+            throw std::invalid_argument("Некорректный ввод для максимального количества книг.");
+        }
+    }
+
+    User newUser(name, "USR_" + std::string(zSize, '0') + userId, {}, maxBooksAllowed);
 
     return newUser;
 }

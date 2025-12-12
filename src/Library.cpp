@@ -95,7 +95,45 @@ void Library::displayAllUsers() const {
 }
 
 void Library::saveToFile() const {
-    // Реализация сохранения данных в файл
+    std::ofstream outFile(dataFile);
+    if (!outFile) {
+        throw std::invalid_argument("Не удалось открыть файл для записи!");
+    }
+
+    for (const auto& book : books) {
+        outFile << "BOOK\n";
+        outFile << "Title: " << book.getTitle() << "\n";
+        outFile << "Author: " << book.getAuthor() << "\n";
+        outFile << "Year: " << book.getYear() << "\n";
+        outFile << "ISBN: " << book.getISBN() << "\n";
+        outFile << "Available: " << (book.getAvailability() ? "yes" : "no") << "\n";
+        outFile << "BorrowedBy: " << book.getBorrowedBy() << "\n\n";
+    }
+
+    outFile << "---USERS---\n\n";
+
+    for (const auto& user : users) {
+        outFile << "USER\n";
+        outFile << "Name: " << user.getName() << "\n";
+        outFile << "UserID: " << user.getUserId() << "\n";
+        outFile << "BorrowedBooks: ";
+        const auto& borrowedBooks = user.getBorrowedBooks();
+        for (size_t i = 0; i < borrowedBooks.size(); ++i) {
+            outFile << borrowedBooks[i];
+            if (i < borrowedBooks.size() - 1) {
+                outFile << "|";
+            }
+        }
+        outFile << "\n";
+        outFile << "MaxBooks: " << user.getMaxBooksAllowed() << "\n\n";
+    }
+
+    outFile << "---END---\n";
+
+    outFile.close();
+
+    std::cout << "Данные сохранены в файл.\n";
+
 }
 
 void Library::loadFromFile() {
@@ -106,7 +144,7 @@ void Library::loadFromFile() {
         std::ofstream out(dataFile);
 
         if (!out) {
-            throw std::invalid_argument("Ошибка: не удалось создать файл!");
+            throw std::invalid_argument("Не удалось создать файл!");
         }
 
         out << "---END---\n";

@@ -47,8 +47,11 @@ void User::displayProfile() const {
     std::cout << "Имя: " << name << "\n";
     std::cout << "ID пользователя: " << userId << "\n";
     std::cout << "Взятые книги (ISBN): ";
-    for (const auto& isbn : borrowedBooks) {
-        std::cout << isbn << " ";
+    for (size_t i = 0; i < borrowedBooks.size(); ++i) {
+        std::cout << borrowedBooks[i];
+        if (i < borrowedBooks.size() - 1) {
+            std::cout << "|";
+        }
     }
     std::cout << "\nМаксимальное количество книг: " << maxBooksAllowed << "\n";
 }
