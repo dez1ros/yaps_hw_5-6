@@ -5,40 +5,87 @@
 
 User createUser(std::vector<User> users);
 Book createBook();
-int mainMenu();
+void mainMenu();
 
 int main() {
+    system("clear");
+    // setlocale(LC_ALL, "Russian");
+
     Library library("library_data.txt");
 
     while (1) {
-        int choice = mainMenu();
+        int choice;
+        mainMenu();
+        
+        std::cin >> choice;
+        system("clear");
 
         if (choice == 1){
             library.displayAllBooks();
         } else if (choice == 2){
             library.displayAllUsers();
         } else if (choice == 3){
+
             library.addBook(createBook());
         } else if (choice == 4){
             library.addUser(createUser(library.getAllUsers()));
         } else if (choice == 5){
-            std::cout << "Введите имя пользователя: ";
+            std::string userName, isbn;
+            std::cout << "Введите ID пользователя: ";
+            std::cin >> userName;
+            std::cout << "Введите ISBN книги: ";
+            std::cin >> isbn;
+            library.borrowBook(userName, isbn);             
+        } else if (choice == 6) {
+            std::string isbn;
+            std::cout << "Введите ISBN книги для возврата: ";
+            std::cin >> isbn;
+            library.returnBook(isbn);
+        } else if (choice == 7) {
+            std::string isbn;
+            std::cout << "Введите ISBN книги для поиска: ";
+            std::cin >> isbn;
+            Book* book = library.findBookByISBN(isbn);
+            if (book) {
+                book->displayInfo();
+            } else {
+                std::cout << "Книга с ISBN " << isbn << " не найдена.\n";
+            }
+        } else if (choice == 8) {
+            std::string userNameID;
+            std::cout << "Введите ID пользователя для просмотра профиля: ";
+            std::cin >> userNameID;
+            User* user = library.findUserByName(userNameID);
+            if (user) {
+                std::cout << "---------------------\n";
+                user->displayProfile();
+                std::cout << "---------------------\n";
+            } else {
+                std::cout << "Пользователь " << userNameID << " не найден.\n";
+            }
+        } else if (choice == 9) {
+            library.saveToFile();
+            std::cout << "Данные сохранены в файл.\n";
+        } else if (choice == 10) {
+            std::cout << "Выход из программы.\n";
+            break;
+        } else {
+            std::cout << "Неверный выбор. Пожалуйста, попробуйте снова.\n";
         }
 
-        if (choice == 10) {
-            library.saveToFile();
-            std::cout << "Данные сохранены. Выход из программы.\n";
-            break;
-        }
-    }   
+        std::cout << "\n" << "Нажмите Enter, чтобы продолжить...";
         
+        std::cin.get();
+
+        system("clear");
+
+    }   
+
     return 0;
 }
 
 
-int mainMenu(){
-    int choice;
-
+void mainMenu(){
     std::cout << "=== БИБЛИОТЕКА ===\n";
     std::cout << "1. Просмотреть все книги\n";
     std::cout << "2. Просмотреть всех пользователей\n";
@@ -52,10 +99,6 @@ int mainMenu(){
     std::cout << "10. Выход\n";
 
     std::cout << "Ваш выбор: ";
-
-    std::cin >> choice;
-
-    return choice;
 }
 
 Book createBook(){
@@ -63,10 +106,11 @@ Book createBook(){
     int year;
 
     std::cout << "Введите название книги: ";
-    std::cin >> title;
+    std::cin.ignore(1000, '\n');
+    std::getline(std::cin, title);
 
     std::cout << "Введите автора книги: ";
-    std::cin >> author ;
+    std::getline(std::cin, author);
 
     std::cout << "Введите год издания: ";
     std::cin >> year;
@@ -83,7 +127,8 @@ User createUser(std::vector<User> users) {
     int maxID;
 
     std::cout << "Введите имя пользователя: ";
-    std::cin >> name;
+    std::cin.ignore(1000, '\n');
+    std::getline(std::cin, name);
     
     if (users.empty()){
         lastUserId = "000";

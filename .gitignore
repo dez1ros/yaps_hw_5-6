@@ -1,6 +1,7 @@
 *.exe
 /build/
 /b/
+/bw/
 *.o
 *.a
 .DS_Store

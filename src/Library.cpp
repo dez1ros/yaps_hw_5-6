@@ -1,8 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include "Library.h"
 
+std::string deleteBackSymb(std::string line);
 
 Library::Library(std::string filePath) : dataFile("../data/" + filePath) {
     loadFromFile();
@@ -56,7 +58,7 @@ Book* Library::findBookByISBN(const std::string& isbn) {
 
 User* Library::findUserByName(const std::string& name) {
     for (auto& user : users) {
-        if (user.getName() == name) {
+        if (user.getUserId() == name) {
             return &user;
         }
     }
@@ -68,6 +70,7 @@ std::vector<User> Library::getAllUsers() const {
 }
 
 void Library::displayAllBooks() const {
+    std::cout << "---------------------\n";
     for (const auto& book : books) {
         book.displayInfo();
         std::cout << "---------------------\n";
@@ -75,6 +78,7 @@ void Library::displayAllBooks() const {
 }
 
 void Library::displayAllUsers() const {
+    std::cout << "---------------------\n";
     for (const auto& user : users) {
         user.displayProfile();
         std::cout << "---------------------\n";
@@ -102,39 +106,38 @@ void Library::loadFromFile() {
     std::string line;
 
     std::string title, author, isbn, borrowedBy;
-    std::string name, userId;
+    std::string name, userId, available;
     std::vector<std::string> borrowedBooks;
     std::string borrowedBooksLine;
     int year, maxBooks;
-    bool available;
 
     int count = 0;
     while (std::getline(inFile, line)) {
         if (line.find("BOOK") == 0) {
             std::getline(inFile, line);
-            title = line.substr(7);
+            title = deleteBackSymb(line.substr(7));
             std::getline(inFile, line);
-            author = line.substr(8);
+            author = deleteBackSymb(line.substr(8));
             std::getline(inFile, line);
-            year = std::stoi(line.substr(6));
+            year = std::stoi(deleteBackSymb(line.substr(6)));
             std::getline(inFile, line);
-            isbn = line.substr(6);
+            isbn = deleteBackSymb(line.substr(6));
             std::getline(inFile, line);
-            available = (line.substr(11) == "yes");
+            available = deleteBackSymb(line.substr(11));
             std::getline(inFile, line);
-            borrowedBy = line.substr(12);
-
-            Book book(title, author, year, isbn, available, borrowedBy);
+            borrowedBy = deleteBackSymb(line.substr(12));
+            
+            Book book(title, author, year, isbn, (available.find("yes") == 0), borrowedBy);
             addBook(book);
 
         } else if (line.find("USER") == 0) {
 
             std::getline(inFile, line);
-            name = line.substr(6);
+            name = deleteBackSymb(line.substr(6));
             std::getline(inFile, line);
-            userId = line.substr(8);
+            userId = deleteBackSymb(line.substr(8));                        
             std::getline(inFile, line);
-            borrowedBooksLine = line.substr(15);
+            borrowedBooksLine = deleteBackSymb(line.substr(15));
             std::istringstream borrowedBooksLineSS(borrowedBooksLine);
             std::string isbn;
             borrowedBooks.clear();
@@ -142,7 +145,7 @@ void Library::loadFromFile() {
                 borrowedBooks.push_back(isbn);
             }
             std::getline(inFile, line);
-            maxBooks = std::stoi(line.substr(9));
+            maxBooks = std::stoi(deleteBackSymb(line.substr(9)));
             
             if (!maxBooks){
                 maxBooks = 3;
@@ -157,4 +160,11 @@ void Library::loadFromFile() {
     }
 
     inFile.close();
+}
+
+std::string deleteBackSymb(std::string line){
+    while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) {
+        line.pop_back();
+    }
+    return line;
 }

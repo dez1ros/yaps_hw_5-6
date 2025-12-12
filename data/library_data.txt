@@ -11,3 +11,8 @@ Name: Иванов
 UserID: USR_001
 BorrowedBooks: 978-5-17-70490-8|978-3-16-148410-0
 MaxBooks: 3
+USER
+Name: Иванов
+UserID: USR_002
+BorrowedBooks: 
+MaxBooks: 3
