@@ -202,6 +202,10 @@ Book createBook(std::vector<std::string> existingISBNs) {
     std::cin >> isbn;
     std::cin.ignore(1000, '\n');
 
+    if (isbn.empty()) {
+        throw std::invalid_argument("ISBN не может быть пустым.");
+    }
+
     for (auto& existingISBN : existingISBNs) {
         if (isbn == existingISBN) {
             throw std::invalid_argument("Книга с таким ISBN уже существует в библиотеке.");
