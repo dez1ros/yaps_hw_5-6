@@ -1,8 +1,8 @@
 #include "Book.h"
 #include <iostream>
 
-Book::Book(std::string t, std::string a, int y, std::string i, bool available, std::string borrowed)
-    : title(t), author(a), year(y), isbn(i), isAvailable(available), borrowedBy(borrowed)
+Book::Book(std::string t, std::string a, int y, std::string i, bool available, std::string borrowed, time_t take, time_t ret)
+    : title(t), author(a), year(y), isbn(i), isAvailable(available), borrowedBy(borrowed), takeDate(take), returnDate(ret)
 {
     if (y <= 1450 || y >= 2025) {
         throw std::invalid_argument("Год издания должен быть между 1450 и 2025.");
@@ -36,8 +36,18 @@ std::string Book::getBorrowedBy() const {
     return borrowedBy;
 }
 
-void Book::borrowBook(const std::string& userName) {
+time_t Book::getTakeDate() const {
+    return takeDate;
+}
+
+time_t Book::getReturnDate() const {
+    return returnDate;
+}
+
+void Book::borrowBook(const std::string& userName, const int daysLimit) {
     if (isAvailable) {
+        takeDate = std::time(0);
+        returnDate = takeDate + daysLimit * 24 * 60 * 60;
         isAvailable = false;
         borrowedBy = userName;
         std::cout << "Книга \"" << title << "\" успешно взята пользователем " << userName << ".\n";
@@ -65,6 +75,8 @@ void Book::displayInfo() const {
     if (!isAvailable) {
         std::cout << "Доступность: " << "Недоступна" << "\n";
         std::cout << "Взята пользователем: " << borrowedBy << "\n";
+        std::cout << "Дата взятия: " << std::ctime(&takeDate);
+        std::cout << "Дата возврата: " << std::ctime(&returnDate);
     } else 
     {
         std::cout << "Доступность: " << "Доступна" << "\n";

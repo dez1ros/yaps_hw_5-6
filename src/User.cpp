@@ -2,8 +2,8 @@
 #include <iostream>
 #include <algorithm>
 
-User::User(std::string n, std::string id, std::vector<std::string> borrowed, int maxBooks)
-    : name(n), userId(id), borrowedBooks(borrowed), maxBooksAllowed(maxBooks) {}
+User::User(std::string n, std::string id, std::vector<std::string> borrowed, int maxBooks, int fines)
+    : name(n), userId(id), borrowedBooks(borrowed), maxBooksAllowed(maxBooks), finesAmount(fines) {}
 
 std::string User::getName() const {
     return name;
@@ -23,6 +23,14 @@ int User::getMaxBooksAllowed() const {
 
 bool User::canBorrowMore() {
     return borrowedBooks.size() < maxBooksAllowed;
+}
+
+int User::getFinesAmount() const {
+    return finesAmount;
+}
+
+void User::addFine(int amount) {
+    finesAmount += amount;
 }
 
 void User::addBook(const std::string& isbn) {
@@ -54,5 +62,6 @@ void User::displayProfile() const {
         }
     }
     std::cout << "\nМаксимальное количество книг: " << maxBooksAllowed << "\n";
+    std::cout << "Сумма штрафов: " << finesAmount << "\n";
 }
 

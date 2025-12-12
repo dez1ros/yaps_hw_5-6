@@ -7,13 +7,14 @@ User createUser(std::vector<User> users);
 Book createBook(std::vector<std::string> existingISBNs);
 void mainMenu();
 std::string deleteBackSymb(std::string line);
+void takeBook(Library& library);
 
 int main() {
     system("clear");
     Library library;
 
     try {
-        library = Library("library_data.txt");
+        library = Library("library_data2.txt");
     } catch (const std::invalid_argument& e) {
         std::cout << "Ошибка при инициализации библиотеки: " << e.what() << std::endl;
         return 1;
@@ -59,16 +60,10 @@ int main() {
             }
         } 
         else if (choice == 5){
-            std::string userName, isbn;
-            std::cout << "Введите имя пользователя: ";
-            std::cin >> userName;
-            std::cout << "Введите ISBN книги: ";
-            std::cin >> isbn;
-            std::cin.ignore(1000, '\n');
             try{
-                library.borrowBook(userName, isbn);    
+                takeBook(library);
             } catch (const std::invalid_argument& e) {
-                std::cout << "Ошибка: " << e.what() << "\n";
+                std::cout << "Ошибка при выдаче книги: " << e.what() << "\n";
                 errFlag = 1;
             }
         } 
@@ -239,4 +234,28 @@ User createUser(std::vector<User> users) {
     User newUser(name, "USR_" + std::string(zSize, '0') + userId, {}, maxBooksAllowed);
 
     return newUser;
+}
+
+void takeBook(Library& library) {
+    std::string userName, isbn;
+    int daysLimit;
+    std::cout << "Введите имя пользователя: ";
+    std::cin >> userName;
+    std::cout << "Введите ISBN книги: ";
+    std::cin >> isbn;
+    std::cout << "Введите количество дней на которое берется книга: ";
+    std::cin >> daysLimit;
+    if (std::cin.fail()) {
+        std::cin.clear();
+        std::cin.ignore(1000, '\n');
+        throw std::invalid_argument("Некорректное значение количества дней.");
+    }
+    std::cin.ignore(1000, '\n');
+    
+    try{
+        library.borrowBook(userName, isbn, daysLimit);    
+    } catch (const std::invalid_argument& e) {
+        throw std::invalid_argument("Ошибка при выдаче книги: " + std::string(e.what()));
+    }
+
 }

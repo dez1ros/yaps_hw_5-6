@@ -17,7 +17,7 @@ public:
     void addBook(const Book& book);
     void addUser(const User& user);
 
-    void borrowBook(const std::string& userName, const std::string& isbn);
+    void borrowBook(const std::string& userName, const std::string& isbn, const int daysLimit);
     void returnBook(const std::string& isbn);
 
     Book* findBookByISBN(const std::string& isbn);

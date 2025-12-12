@@ -20,13 +20,13 @@ void Library::addUser(const User& user) {
     users.push_back(user);
 }
 
-void Library::borrowBook(const std::string& userName, const std::string& isbn) {
+void Library::borrowBook(const std::string& userName, const std::string& isbn, const int daysLimit) {
     User* user = findUserByName(userName);
     Book* book = findBookByISBN(isbn);
 
     if (user && book) {
         if (user->canBorrowMore() && book->getAvailability()) {
-            book->borrowBook(userName);
+            book->borrowBook(userName, daysLimit);
             user->addBook(isbn);
         } else {
             throw std::invalid_argument("Невозможно взять книгу: либо пользователь достиг лимита, либо книга недоступна.\n");
@@ -41,6 +41,15 @@ void Library::returnBook(const std::string& isbn) {
     if (book && !book->getAvailability()) {
         User* user = findUserByName(book->getBorrowedBy());
         if (user) {
+            if (std::time(0) > book->getReturnDate()) {
+                int overdueDays = (std::time(0) - book->getReturnDate()) / (24 * 60 * 60);
+                int fineAmount = overdueDays;
+                user->addFine(fineAmount);
+                std::cout << "Книга возвращена с опозданием на " << overdueDays << " дней. Штраф: " << fineAmount << " единиц.\n";
+            }
+            else {
+                std::cout << "Книга возвращена вовремя. Штрафов нет.\n";
+            }
             book->returnBook();
             user->removeBook(isbn);
         }
@@ -107,7 +116,9 @@ void Library::saveToFile() const {
         outFile << "Year: " << book.getYear() << "\n";
         outFile << "ISBN: " << book.getISBN() << "\n";
         outFile << "Available: " << (book.getAvailability() ? "yes" : "no") << "\n";
-        outFile << "BorrowedBy: " << book.getBorrowedBy() << "\n\n";
+        outFile << "BorrowedBy: " << book.getBorrowedBy() << "\n";
+        outFile << "TakeDate: " << book.getTakeDate() << "\n";
+        outFile << "ReturnDate: " << book.getReturnDate() << "\n\n";
     }
 
     outFile << "---USERS---\n\n";
@@ -125,7 +136,8 @@ void Library::saveToFile() const {
             }
         }
         outFile << "\n";
-        outFile << "MaxBooks: " << user.getMaxBooksAllowed() << "\n\n";
+        outFile << "MaxBooks: " << user.getMaxBooksAllowed() << "\n";
+        outFile << "FinesAmount: " << user.getFinesAmount() << "\n\n";
     }
 
     outFile << "---END---\n";
@@ -157,10 +169,11 @@ void Library::loadFromFile() {
     std::string line;
 
     std::string title, author, isbn, borrowedBy;
+    std::time_t takeDate, returnDate;
     std::string name, userId, available;
     std::vector<std::string> borrowedBooks;
     std::string borrowedBooksLine;
-    int year, maxBooks;
+    int year, maxBooks, fineAmount;
 
     int count = 0;    
     while (1) {
@@ -185,7 +198,12 @@ void Library::loadFromFile() {
                 }
             }
 
-            Book book(title, author, year, isbn, (available.find("yes") == 0), borrowedBy);
+            std::getline(inFile, line);
+            takeDate = std::stoi(deleteBackSymb(line.substr(10)));
+            std::getline(inFile, line);
+            returnDate = std::stoi(deleteBackSymb(line.substr(12)));
+
+            Book book(title, author, year, isbn, (available.find("yes") == 0), borrowedBy, takeDate, returnDate);
             addBook(book);
 
         } else if (line.find("USER") == 0) {
@@ -205,6 +223,9 @@ void Library::loadFromFile() {
             std::getline(inFile, line);
             maxBooks = std::stoi(deleteBackSymb(line.substr(9)));
             
+            std::getline(inFile, line);
+            fineAmount = std::stoi(deleteBackSymb(line.substr(12)));
+
             if (!maxBooks){
                 maxBooks = 3;
             }
@@ -218,7 +239,7 @@ void Library::loadFromFile() {
                 }
             }
 
-            User user(name, userId, borrowedBooks, maxBooks);
+            User user(name, userId, borrowedBooks, maxBooks, fineAmount);
             addUser(user);
         } else if (line.find("---END---") == 0) {
             break;
