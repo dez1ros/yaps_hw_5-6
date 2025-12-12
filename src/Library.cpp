@@ -10,6 +10,8 @@ Library::Library(std::string filePath) : dataFile("../data/" + filePath) {
     loadFromFile();
 }
 
+Library::Library() {}
+
 void Library::addBook(const Book& book) {
     books.push_back(book);
 }
@@ -27,10 +29,10 @@ void Library::borrowBook(const std::string& userName, const std::string& isbn) {
             book->borrowBook(userName);
             user->addBook(isbn);
         } else {
-            std::cout << "Невозможно взять книгу: либо пользователь достиг лимита, либо книга недоступна.\n";
+            throw std::invalid_argument("Невозможно взять книгу: либо пользователь достиг лимита, либо книга недоступна.\n");
         }
     } else {
-        std::cout << "Пользователь или книга не найдены.\n";
+        throw std::invalid_argument("Пользователь или книга не найдены.\n");
     }
 }
 
@@ -43,7 +45,7 @@ void Library::returnBook(const std::string& isbn) {
             user->removeBook(isbn);
         }
     } else {
-        std::cout << "Книга не найдена или не была взята.\n";
+        throw std::invalid_argument("Книга не найдена или не была взята.\n");
     }
 }
 
@@ -53,24 +55,32 @@ Book* Library::findBookByISBN(const std::string& isbn) {
             return &book;
         }
     }
-    return nullptr;
+    throw std::invalid_argument("Книга с ISBN " + isbn + " не найдена в библиотеке.");
 }
 
 User* Library::findUserByName(const std::string& name) {
     for (auto& user : users) {
-        if (user.getUserId() == name) {
+        if (user.getName() == name) {
             return &user;
         }
     }
-    return nullptr;
+    throw std::invalid_argument("Пользователь " + name + " не найден в библиотеке.");
 }
 
 std::vector<User> Library::getAllUsers() const {
     return users;
 }
 
+std::vector<std::string> Library::getAllIsbns() {
+    std::vector<std::string> isbns = {};
+    for (const auto& book : books) {
+        isbns.push_back(book.getISBN());
+    }
+    return isbns;
+}
+
+
 void Library::displayAllBooks() const {
-    std::cout << "---------------------\n";
     for (const auto& book : books) {
         book.displayInfo();
         std::cout << "---------------------\n";
@@ -78,7 +88,6 @@ void Library::displayAllBooks() const {
 }
 
 void Library::displayAllUsers() const {
-    std::cout << "---------------------\n";
     for (const auto& user : users) {
         user.displayProfile();
         std::cout << "---------------------\n";
@@ -96,8 +105,7 @@ void Library::loadFromFile() {
         std::ofstream out(dataFile);
 
         if (!out) {
-            std::cerr << "Ошибка: не удалось создать файл!" << std::endl;
-            return;
+            throw std::invalid_argument("Ошибка: не удалось создать файл!");
         }
 
         out.close();
@@ -111,8 +119,9 @@ void Library::loadFromFile() {
     std::string borrowedBooksLine;
     int year, maxBooks;
 
-    int count = 0;
-    while (std::getline(inFile, line)) {
+    int count = 0;    
+    while (1) {
+        std::getline(inFile, line);
         if (line.find("BOOK") == 0) {
             std::getline(inFile, line);
             title = deleteBackSymb(line.substr(7));
@@ -127,6 +136,12 @@ void Library::loadFromFile() {
             std::getline(inFile, line);
             borrowedBy = deleteBackSymb(line.substr(12));
             
+            for (const auto& book : books) {
+                if (book.getISBN() == isbn) {
+                    throw std::invalid_argument("Дублирование книги с ISBN " + isbn + " в файле");
+                }
+            }
+
             Book book(title, author, year, isbn, (available.find("yes") == 0), borrowedBy);
             addBook(book);
 
@@ -154,10 +169,20 @@ void Library::loadFromFile() {
                 borrowedBooks = {};
             }
 
+            for (const auto& user : users) {
+                if (user.getUserId() == userId) {
+                    throw std::invalid_argument("Дублирование пользователя с ID " + userId + " в файле");
+                }
+            }
+
             User user(name, userId, borrowedBooks, maxBooks);
             addUser(user);
+        } else if (line.find("---END---") == 0) {
+            break;
         }
     }
+
+    std::cout << "Загружено книг: " << books.size() << ", пользователей " << users.size() << " из файла.\n";
 
     inFile.close();
 }

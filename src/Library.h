@@ -11,6 +11,7 @@ private:
     std::vector<User> users;
     std::string dataFile;
 public:
+    Library();
     Library(std::string filePath);
 
     void addBook(const Book& book);
@@ -23,6 +24,7 @@ public:
     User* findUserByName(const std::string& name);
 
     std::vector<User> getAllUsers() const;
+    std::vector<std::string> getAllIsbns();
     void displayAllBooks() const;
     void displayAllUsers() const;
     void saveToFile() const;

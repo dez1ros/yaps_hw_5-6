@@ -4,16 +4,24 @@
 #include "Library.h"
 
 User createUser(std::vector<User> users);
-Book createBook();
+Book createBook(std::vector<std::string> existingISBNs);
 void mainMenu();
+std::string deleteBackSymb(std::string line);
 
 int main() {
     system("clear");
-    // setlocale(LC_ALL, "Russian");
-
-    Library library("library_data.txt");
+    Library library;
+    try {
+        library = Library("library_data.txt");
+    } catch (const std::invalid_argument& e) {
+        std::cout << "Ошибка при инициализации библиотеки: " << e.what() << std::endl;
+        return 1;
+    }
+    
+    int errFlag;
 
     while (1) {
+        errFlag = 0;
         int choice;
         mainMenu();
         
@@ -21,66 +29,105 @@ int main() {
         system("clear");
 
         if (choice == 1){
+            std::cout << "---------------------------------------------------------------------------------------" << std::endl;
             library.displayAllBooks();
         } else if (choice == 2){
+            std::cout << "---------------------------------------------------------------------------------------" << std::endl;
             library.displayAllUsers();
-        } else if (choice == 3){
-
-            library.addBook(createBook());
-        } else if (choice == 4){
-            library.addUser(createUser(library.getAllUsers()));
-        } else if (choice == 5){
+        } 
+        else if (choice == 3){
+            try {
+                std::vector<std::string> existingISBNs = library.getAllIsbns();
+                library.addBook(createBook(existingISBNs));
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Ошибка при добавлении книги: " << e.what() << std::endl;
+                errFlag = 1;
+            }
+        } 
+        else if (choice == 4){
+            try{
+                library.addUser(createUser(library.getAllUsers()));
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Ошибка при регистрации пользователя: " << e.what() << std::endl;
+                errFlag = 1;
+            }
+        } 
+        else if (choice == 5){
             std::string userName, isbn;
-            std::cout << "Введите ID пользователя: ";
+            std::cout << "Введите имя пользователя: ";
             std::cin >> userName;
             std::cout << "Введите ISBN книги: ";
             std::cin >> isbn;
-            library.borrowBook(userName, isbn);             
-        } else if (choice == 6) {
+            try{
+                library.borrowBook(userName, isbn);    
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Ошибка: " << e.what() << "\n";
+                errFlag = 1;
+            }         
+        } 
+        else if (choice == 6) {
             std::string isbn;
             std::cout << "Введите ISBN книги для возврата: ";
             std::cin >> isbn;
-            library.returnBook(isbn);
-        } else if (choice == 7) {
+            try{
+                library.returnBook(isbn);
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Ошибка: " << e.what() << "\n";
+                errFlag = 1;
+            }
+        } 
+        else if (choice == 7) {
             std::string isbn;
             std::cout << "Введите ISBN книги для поиска: ";
             std::cin >> isbn;
-            Book* book = library.findBookByISBN(isbn);
-            if (book) {
-                book->displayInfo();
-            } else {
-                std::cout << "Книга с ISBN " << isbn << " не найдена.\n";
+
+            Book* book;
+            try{
+                book = library.findBookByISBN(isbn);
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Ошибка: " << e.what() << "\n";
+                errFlag = 1;
             }
-        } else if (choice == 8) {
-            std::string userNameID;
-            std::cout << "Введите ID пользователя для просмотра профиля: ";
-            std::cin >> userNameID;
-            User* user = library.findUserByName(userNameID);
-            if (user) {
+            book->displayInfo();
+
+        } 
+        else if (choice == 8) {
+            std::string userName;
+            std::cout << "Введите имя пользователя для просмотра профиля: ";
+            std::cin >> userName;
+            User* user;
+            try {
+                user = library.findUserByName(userName);
                 std::cout << "---------------------\n";
                 user->displayProfile();
                 std::cout << "---------------------\n";
-            } else {
-                std::cout << "Пользователь " << userNameID << " не найден.\n";
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Ошибка: " << e.what() << "\n";
+                errFlag = 1;
             }
-        } else if (choice == 9) {
+        } 
+        else if (choice == 9) {
             library.saveToFile();
             std::cout << "Данные сохранены в файл.\n";
-        } else if (choice == 10) {
+        } 
+        else if (choice == 10) {
             std::cout << "Выход из программы.\n";
             break;
-        } else {
+        } 
+        else {
             std::cout << "Неверный выбор. Пожалуйста, попробуйте снова.\n";
         }
 
+        if (!errFlag){
+            std::cout << "\nОперация выполнена успешно.\n";    
+        }
+
         std::cout << "\n" << "Нажмите Enter, чтобы продолжить...";
-        
+        std::cin.ignore(1000, '\n');
         std::cin.get();
 
         system("clear");
-
     }   
-
     return 0;
 }
 
@@ -101,7 +148,7 @@ void mainMenu(){
     std::cout << "Ваш выбор: ";
 }
 
-Book createBook(){
+Book createBook(std::vector<std::string> existingISBNs) {
     std::string title, author, isbn;
     int year;
 
@@ -115,10 +162,21 @@ Book createBook(){
     std::cout << "Введите год издания: ";
     std::cin >> year;
 
+    if (std::cin.fail()) {
+        std::cin.clear();
+        throw std::invalid_argument("Некорректный год издания.");
+    }
+
     std::cout << "Введите ISBN книги: ";
     std::cin >> isbn;
 
-    Book newBook(title, author, year, isbn);
+    for (auto& existingISBN : existingISBNs) {
+        if (isbn == existingISBN) {
+            throw std::invalid_argument("Книга с таким ISBN уже существует в библиотеке.");
+        }
+    }
+
+    Book newBook(deleteBackSymb(title), deleteBackSymb(author), year, isbn);
     return newBook;
 }
 
@@ -129,7 +187,8 @@ User createUser(std::vector<User> users) {
     std::cout << "Введите имя пользователя: ";
     std::cin.ignore(1000, '\n');
     std::getline(std::cin, name);
-    
+    std::cin.clear();
+
     if (users.empty()){
         lastUserId = "000";
     }
@@ -139,6 +198,9 @@ User createUser(std::vector<User> users) {
                 lastUserId = user.getUserId().substr(4);
             }
         }
+    }
+    if (std::stoi(lastUserId) + 1 > 999){
+        throw std::invalid_argument("Достигнут максимальный лимит пользователей.");
     }
     userId = std::to_string(std::stoi(lastUserId) + 1);
     int zSize = 3 - userId.length();
