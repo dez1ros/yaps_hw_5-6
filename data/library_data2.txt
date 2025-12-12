@@ -3,8 +3,8 @@ Title: Война и мир
 Author: Лев Толстой
 Year: 1869
 ISBN: 978-5-17-70490-8
-Available: no
-BorrowedBy: sasha
+Available: yes
+BorrowedBy: 
 TakeDate: 1765549718
 ReturnDate: 1851949718
 
@@ -18,6 +18,36 @@ BorrowedBy: sasha
 TakeDate: 1765549569
 ReturnDate: 1766413569
 
+BOOK
+Title: b
+Author: a
+Year: 1999
+ISBN: 3
+Available: yes
+BorrowedBy: 
+TakeDate: 0
+ReturnDate: 0
+
+BOOK
+Title: fas
+Author: a
+Year: 2010
+ISBN: 10-321
+Available: yes
+BorrowedBy: 
+TakeDate: 0
+ReturnDate: 0
+
+BOOK
+Title: top
+Author: a
+Year: 1980
+ISBN: 12903=12
+Available: yes
+BorrowedBy: 
+TakeDate: 0
+ReturnDate: 0
+
 ---USERS---
 
 USER
@@ -30,7 +60,14 @@ FinesAmount: 0
 USER
 Name: sasha
 UserID: USR_002
-BorrowedBooks: 1|978-5-17-70490-8
+BorrowedBooks: 1
+MaxBooks: 3
+FinesAmount: 0
+
+USER
+Name: errir
+UserID: USR_003
+BorrowedBooks: 
 MaxBooks: 3
 FinesAmount: 0
 

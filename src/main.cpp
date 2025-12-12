@@ -37,7 +37,7 @@ int main() {
 
         if (choice == 1){
             std::cout << "---------------------------------------------------------------------------------------" << std::endl;
-            library.displayAllBooks();
+            library.displayAllBooksSortedByYear();
         } else if (choice == 2){
             std::cout << "---------------------------------------------------------------------------------------" << std::endl;
             library.displayAllUsers();
@@ -88,14 +88,12 @@ int main() {
             Book* book;
             try{
                 book = library.findBookByISBN(isbn);
-            } catch (const std::invalid_argument& e) {
-                std::cout << "Ошибка: " << e.what() << "\n";
-                errFlag = 1;
-            }
-            if (!errFlag) {
                 std::cout << "---------------------\n";
                 book->displayInfo();
                 std::cout << "---------------------\n";
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Ошибка: " << e.what() << "\n";
+                errFlag = 1;
             }
         } 
         else if (choice == 8) {
@@ -127,6 +125,25 @@ int main() {
             std::cout << "Выход из программы.\n";
             break;
         } 
+        else if (choice == 11) {
+            std::string author;
+            std::cout << "Введите имя автора для поиска книг: ";
+            std::cin >> author;
+            std::cin.ignore(1000, '\n');
+
+            std::vector<Book*> books;
+            try{
+                books = library.findBooksByAuthor(author);
+                std::cout << "------------------------------------------------------------------------------\n";
+                for (const auto& book : books) {
+                    book->displayInfo();
+                    std::cout << "---------------------\n";
+                }
+            } catch (const std::invalid_argument& e) {
+                std::cout << "Ошибка: " << e.what() << "\n";
+                errFlag = 1;
+            }
+        }
         else {
             std::cout << "Неверный выбор. Пожалуйста, попробуйте снова.\n";
             errFlag = 1;
@@ -157,6 +174,7 @@ void mainMenu(){
     std::cout << "8. Просмотреть профиль пользователя\n";
     std::cout << "9. Сохранить данные в файл\n";
     std::cout << "10. Выход\n";
+    std::cout << "11. ДОП. Поиск книг по автору\n";
 
     std::cout << "Ваш выбор: ";
 }

@@ -67,6 +67,19 @@ Book* Library::findBookByISBN(const std::string& isbn) {
     throw std::invalid_argument("Книга с ISBN " + isbn + " не найдена в библиотеке.");
 }
 
+std::vector<Book*> Library::findBooksByAuthor(const std::string& author) {
+    std::vector<Book*> authorBooks;
+    for (auto& book : books) {
+        if (book.getAuthor() == author) {
+            authorBooks.push_back(&book);
+        }
+    }
+    if (authorBooks.empty()) {
+        throw std::invalid_argument("Книга с автором " + author + " не найдена в библиотеке.");
+    }
+    return authorBooks;
+}
+
 User* Library::findUserByName(const std::string& name) {
     for (auto& user : users) {
         if (user.getName() == name) {
@@ -94,6 +107,32 @@ void Library::displayAllBooks() const {
         book.displayInfo();
         std::cout << "---------------------\n";
     }
+}
+
+void Library::displayAllBooksSortedByYear() const {
+    std::vector<Book> sortedBooks;
+    std::vector<Book> tempBooks = books;
+    int index = -1;
+    while (true) {
+        int minYear = 2026;
+        for (size_t i = 0; i < tempBooks.size(); ++i) {
+            if (tempBooks[i].getYear() < minYear) {
+                minYear = tempBooks[i].getYear();
+                index = i;
+            }
+        }
+        sortedBooks.push_back(tempBooks[index]);
+        tempBooks.erase(tempBooks.begin() + index);
+        if (sortedBooks.size() == books.size()) {
+            break;
+        }
+    }
+
+    for (const auto& sortedBook : sortedBooks) {
+        sortedBook.displayInfo();
+        std::cout << "---------------------\n";
+    }
+    std::cout << "Все книги отсортированы по году издания.\n";
 }
 
 void Library::displayAllUsers() const {
